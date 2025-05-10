@@ -46,7 +46,11 @@ public class StorageController {
     public ResponseEntity<Storage> getStorageById(
             @PathVariable Long materialId,
             @PathVariable Long branchId) {
-        return ResponseEntity.ok(storageService.getStorageById(materialId, branchId));
+        try {
+            return ResponseEntity.ok(storageService.getStorageById(materialId, branchId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping
@@ -76,5 +80,10 @@ public class StorageController {
             @PathVariable Long branchId,
             @RequestParam Integer quantity) {
         return ResponseEntity.ok(storageService.updateStorageQuantity(materialId, branchId, quantity));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Void> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity.notFound().build();
     }
 } 

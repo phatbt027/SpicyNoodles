@@ -1,7 +1,10 @@
 package com.phastel.SpicyNoodles.controller;
 
 import com.phastel.SpicyNoodles.entity.User;
+import com.phastel.SpicyNoodles.entity.Role;
 import com.phastel.SpicyNoodles.service.UserService;
+import com.phastel.SpicyNoodles.exception.RestExceptionHandler;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,8 +36,11 @@ public class UserControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public UserControllerTest() {
-        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
+    @BeforeEach
+    public void setup() {
+        mockMvc = MockMvcBuilders.standaloneSetup(userController)
+                .setControllerAdvice(new RestExceptionHandler())
+                .build();
     }
 
     @Test
@@ -43,6 +49,7 @@ public class UserControllerTest {
         user.setUsername("testuser");
         user.setPassword("password");
         user.setEmail("test@example.com");
+        user.setRole(Role.STAFF);
 
         when(userService.createUser(any(User.class))).thenReturn(user);
 
@@ -59,6 +66,7 @@ public class UserControllerTest {
         User user = new User();
         user.setId(1L);
         user.setUsername("testuser");
+        user.setRole(Role.STAFF);
 
         when(userService.getUserById(1L)).thenReturn(user);
 
@@ -73,10 +81,12 @@ public class UserControllerTest {
         User user1 = new User();
         user1.setId(1L);
         user1.setUsername("user1");
+        user1.setRole(Role.STAFF);
 
         User user2 = new User();
         user2.setId(2L);
         user2.setUsername("user2");
+        user2.setRole(Role.STAFF);
 
         List<User> users = Arrays.asList(user1, user2);
 
@@ -96,6 +106,7 @@ public class UserControllerTest {
         user.setId(1L);
         user.setUsername("updateduser");
         user.setEmail("updated@example.com");
+        user.setRole(Role.STAFF);
 
         when(userService.updateUser(any(User.class))).thenReturn(user);
 
