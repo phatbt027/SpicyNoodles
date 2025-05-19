@@ -2,6 +2,7 @@ package com.phastel.SpicyNoodles.controller;
 
 import com.phastel.SpicyNoodles.entity.SoftDrink;
 import com.phastel.SpicyNoodles.service.SoftDrinkService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,8 +34,12 @@ public class SoftDrinkControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public SoftDrinkControllerTest() {
-        mockMvc = MockMvcBuilders.standaloneSetup(softDrinkController).build();
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(softDrinkController)
+            .setControllerAdvice(new com.phastel.SpicyNoodles.exception.RestExceptionHandler())
+            .build();
     }
 
     @Test

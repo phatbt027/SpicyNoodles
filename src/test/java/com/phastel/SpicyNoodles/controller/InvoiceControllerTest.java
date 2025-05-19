@@ -3,6 +3,7 @@ package com.phastel.SpicyNoodles.controller;
 import com.phastel.SpicyNoodles.entity.Invoice;
 import com.phastel.SpicyNoodles.entity.User;
 import com.phastel.SpicyNoodles.service.InvoiceService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,8 +35,12 @@ public class InvoiceControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public InvoiceControllerTest() {
-        mockMvc = MockMvcBuilders.standaloneSetup(invoiceController).build();
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(invoiceController)
+            .setControllerAdvice(new com.phastel.SpicyNoodles.exception.RestExceptionHandler())
+            .build();
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.phastel.SpicyNoodles.controller;
 
 import com.phastel.SpicyNoodles.entity.Material;
 import com.phastel.SpicyNoodles.service.MaterialService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,8 +34,12 @@ public class MaterialControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public MaterialControllerTest() {
-        mockMvc = MockMvcBuilders.standaloneSetup(materialController).build();
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(materialController)
+            .setControllerAdvice(new com.phastel.SpicyNoodles.exception.RestExceptionHandler())
+            .build();
     }
 
     @Test
