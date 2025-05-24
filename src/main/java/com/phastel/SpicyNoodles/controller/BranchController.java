@@ -58,10 +58,10 @@ public class BranchController {
     }
 
     @PostMapping
-    public String createBranch(@ModelAttribute Branch branch, @RequestParam(required = false) Boolean isEnabled) {
+    public String createBranch(@ModelAttribute Branch branch, @RequestParam(required = false) String isEnabled) {
         logger.info("Creating new branch: {}", branch.getAddress());
         try {
-            branch.setEnabled(isEnabled != null ? isEnabled : true);
+            branch.setEnabled(isEnabled != null);
             branchService.createBranch(branch);
             logger.info("Successfully created branch: {}", branch.getAddress());
         } catch (Exception e) {
@@ -71,11 +71,11 @@ public class BranchController {
     }
 
     @PostMapping("/{id}/update")
-    public String updateBranch(@PathVariable Long id, @ModelAttribute Branch branch, @RequestParam(required = false) Boolean isEnabled) {
+    public String updateBranch(@PathVariable Long id, @ModelAttribute Branch branch, @RequestParam(required = false) String isEnabled) {
         logger.info("Updating branch with ID: {}", id);
         try {
             branch.setId(id);
-            branch.setEnabled(isEnabled != null ? isEnabled : false);
+            branch.setEnabled(isEnabled != null);
             branchService.updateBranch(branch);
             logger.info("Successfully updated branch with ID: {}", id);
         } catch (Exception e) {

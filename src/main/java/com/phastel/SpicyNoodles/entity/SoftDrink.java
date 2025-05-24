@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +16,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString(exclude = "ingredients")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class SoftDrink implements MenuItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +43,7 @@ public class SoftDrink implements MenuItem {
     private boolean isHot = false; // for hot drinks like coffee, tea
 
     @OneToMany(mappedBy = "softDrink", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference("soft-drink-ingredients")
     private Set<SoftDrinkIngredient> ingredients = new HashSet<>();
 
     @Override

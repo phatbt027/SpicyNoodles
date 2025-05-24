@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +16,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString(exclude = "ingredients")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Dish implements MenuItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +41,7 @@ public class Dish implements MenuItem {
     private String category;
 
     @OneToMany(mappedBy = "dish", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference("dish-ingredients")
     private Set<DishIngredient> ingredients = new HashSet<>();
 
     @Override

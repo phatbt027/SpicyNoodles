@@ -1,7 +1,8 @@
 package com.phastel.SpicyNoodles.controller;
 
-import com.phastel.SpicyNoodles.service.UserService;
+import com.phastel.SpicyNoodles.entity.Invoice;
 import com.phastel.SpicyNoodles.service.InvoiceService;
+import com.phastel.SpicyNoodles.service.UserService;
 import com.phastel.SpicyNoodles.service.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/dashboard")
@@ -30,11 +37,12 @@ public class DashboardController {
 
     @GetMapping
     public String dashboard(Model model) {
-        logger.info("Accessing dashboard");
+        logger.info("Accessing dashboard page");
         try {
             model.addAttribute("totalUsers", userService.getAllUsers().size());
             model.addAttribute("totalOrder", invoiceService.getAllInvoices().size());
             model.addAttribute("totalStorageItems", storageService.getAllStorages().size());
+            model.addAttribute("monthlyOrders", getMonthlyOrdersData());
             logger.info("Successfully loaded dashboard stats");
         } catch (Exception e) {
             logger.error("Error loading dashboard stats", e);
@@ -42,7 +50,33 @@ public class DashboardController {
             model.addAttribute("totalUsers", 0);
             model.addAttribute("totalOrder", 0);
             model.addAttribute("totalStorageItems", 0);
+            model.addAttribute("monthlyOrders", List.of(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
         }
         return "dashboard";
+    }
+
+    private List<Integer> getMonthlyOrdersData() {
+        List<Invoice> allInvoices = invoiceService.getAllInvoices();
+        LocalDateTime now = LocalDateTime.now();
+        YearMonth currentYearMonth = YearMonth.from(now);
+
+        // Create a map of month to order count for the current year
+        Map<Integer, Long> monthlyCounts = allInvoices.stream()
+            .filter(invoice -> {
+                LocalDateTime createdAt = invoice.getCreatedAt();
+                return createdAt.getYear() == currentYearMonth.getYear();
+            })
+            .collect(Collectors.groupingBy(
+                invoice -> invoice.getCreatedAt().getMonthValue(),
+                Collectors.counting()
+            ));
+
+        // Create a list of 12 integers representing orders per month
+        List<Integer> monthlyOrders = new java.util.ArrayList<>();
+        for (int month = 1; month <= 12; month++) {
+            monthlyOrders.add(monthlyCounts.getOrDefault(month, 0L).intValue());
+        }
+
+        return monthlyOrders;
     }
 } 

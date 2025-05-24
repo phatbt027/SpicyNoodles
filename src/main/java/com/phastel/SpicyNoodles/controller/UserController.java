@@ -81,9 +81,10 @@ public class UserController {
     }
 
     @PostMapping
-    public String createUser(@ModelAttribute User user) {
+    public String createUser(@ModelAttribute User user, @RequestParam(required = false) String enabled) {
         logger.info("Creating new user: {}", user.getUsername());
         try {
+            user.setEnabled(enabled != null);
             userService.createUser(user);
             logger.info("Successfully created user: {}", user.getUsername());
         } catch (Exception e) {
@@ -93,10 +94,11 @@ public class UserController {
     }
 
     @PostMapping("/{id}/update")
-    public String updateUser(@PathVariable Long id, @ModelAttribute User user) {
+    public String updateUser(@PathVariable Long id, @ModelAttribute User user, @RequestParam(required = false) String enabled) {
         logger.info("Updating user with ID: {}", id);
         try {
             user.setId(id);
+            user.setEnabled(enabled != null);
             userService.updateUser(user);
             logger.info("Successfully updated user with ID: {}", id);
         } catch (Exception e) {

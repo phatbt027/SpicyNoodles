@@ -66,7 +66,7 @@ public class DishController {
             @RequestParam String name,
             @RequestParam String category,
             @RequestParam BigDecimal price,
-            @RequestParam Boolean available,
+            @RequestParam(required = false) String available,
             @RequestParam(required = false) String description,
             @RequestParam(required = false) String imageUrl,
             @RequestParam(required = false) List<Long> ingredientIds,
@@ -79,7 +79,7 @@ public class DishController {
             dish.setName(name);
             dish.setCategory(category);
             dish.setPrice(price);
-            dish.setAvailable(available);
+            dish.setAvailable(available != null);
             dish.setDescription(description);
             dish.setImageUrl(imageUrl);
             
@@ -129,7 +129,7 @@ public class DishController {
             @RequestParam String name,
             @RequestParam String category,
             @RequestParam BigDecimal price,
-            @RequestParam Boolean available,
+            @RequestParam(required = false) String available,
             @RequestParam(required = false) String description,
             @RequestParam(required = false) String imageUrl,
             @RequestParam(required = false) List<Long> ingredientIds,
@@ -143,7 +143,7 @@ public class DishController {
             dish.setName(name);
             dish.setCategory(category);
             dish.setPrice(price);
-            dish.setAvailable(available);
+            dish.setAvailable(available != null);
             dish.setDescription(description);
             dish.setImageUrl(imageUrl);
             

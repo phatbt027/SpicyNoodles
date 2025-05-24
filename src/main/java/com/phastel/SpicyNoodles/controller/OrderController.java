@@ -11,7 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/dashboard/orders")
@@ -31,6 +34,31 @@ public class OrderController {
         logger.info("Accessing order management page");
         model.addAttribute("orders", invoiceService.getAllInvoices());
         return "order-management";
+    }
+
+    private List<Integer> getMonthlyOrdersData() {
+        List<Invoice> allInvoices = invoiceService.getAllInvoices();
+        LocalDateTime now = LocalDateTime.now();
+        YearMonth currentYearMonth = YearMonth.from(now);
+
+        // Create a map of month to order count for the current year
+        Map<Integer, Long> monthlyCounts = allInvoices.stream()
+            .filter(invoice -> {
+                LocalDateTime createdAt = invoice.getCreatedAt();
+                return createdAt.getYear() == currentYearMonth.getYear();
+            })
+            .collect(Collectors.groupingBy(
+                invoice -> invoice.getCreatedAt().getMonthValue(),
+                Collectors.counting()
+            ));
+
+        // Create a list of 12 integers representing orders per month
+        List<Integer> monthlyOrders = new java.util.ArrayList<>();
+        for (int month = 1; month <= 12; month++) {
+            monthlyOrders.add(monthlyCounts.getOrDefault(month, 0L).intValue());
+        }
+
+        return monthlyOrders;
     }
 
     @GetMapping("/search")

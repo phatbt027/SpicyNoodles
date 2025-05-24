@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.util.Objects;
 
 @Entity
@@ -18,10 +19,12 @@ public class SoftDrinkIngredient {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "soft_drink_id")
+    @JsonBackReference("soft-drink-ingredients")
     private SoftDrink softDrink;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ingredient_id")
+    @JsonBackReference("ingredient-soft-drinks")
     private Ingredient ingredient;
 
     @Column(nullable = false)
