@@ -61,7 +61,7 @@
                                 <select class="form-select" id="category" name="category">
                                     <option value="">All Categories</option>
                                     <option th:each="cat : ${T(com.phastel.SpicyNoodles.entity.IngredientCategory).values()}"
-                                            th:value="${cat}"
+                                            th:value="${cat.name()}"
                                             th:text="${cat.displayName}"
                                             th:selected="${param.category == cat.name()}">
                                     </option>
@@ -142,7 +142,7 @@
                             <label for="category" class="form-label">Category</label>
                             <select class="form-select" id="category" name="category" required>
                                 <option th:each="cat : ${T(com.phastel.SpicyNoodles.entity.IngredientCategory).values()}"
-                                        th:value="${cat}"
+                                        th:value="${cat.name()}"
                                         th:text="${cat.displayName}">
                                 </option>
                             </select>
@@ -180,7 +180,7 @@
                             <label for="editCategory" class="form-label">Category</label>
                             <select class="form-select" id="editCategory" name="category" required>
                                 <option th:each="cat : ${T(com.phastel.SpicyNoodles.entity.IngredientCategory).values()}"
-                                        th:value="${cat}"
+                                        th:value="${cat.name()}"
                                         th:text="${cat.displayName}">
                                 </option>
                             </select>

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Objects;
 
 @Entity
@@ -24,7 +25,7 @@ public class DishIngredient {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ingredient_id")
-    @JsonBackReference("ingredient-dishes")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Ingredient ingredient;
 
     @Column(nullable = false)

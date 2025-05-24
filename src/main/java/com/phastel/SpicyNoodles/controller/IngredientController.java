@@ -1,6 +1,7 @@
 package com.phastel.SpicyNoodles.controller;
 
 import com.phastel.SpicyNoodles.entity.Ingredient;
+import com.phastel.SpicyNoodles.entity.IngredientCategory;
 import com.phastel.SpicyNoodles.service.IngredientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +31,10 @@ public class IngredientController {
     }
 
     @PostMapping
-    public String createIngredient(@ModelAttribute Ingredient ingredient) {
+    public String createIngredient(@ModelAttribute Ingredient ingredient, @RequestParam String category) {
         logger.info("Creating new ingredient: {}", ingredient.getName());
         try {
+            ingredient.setCategory(IngredientCategory.valueOf(category));
             ingredientService.createIngredient(ingredient);
             logger.info("Successfully created ingredient: {}", ingredient.getName());
         } catch (Exception e) {
@@ -42,10 +44,11 @@ public class IngredientController {
     }
 
     @PostMapping("/{id}/update")
-    public String updateIngredient(@PathVariable Long id, @ModelAttribute Ingredient ingredient) {
+    public String updateIngredient(@PathVariable Long id, @ModelAttribute Ingredient ingredient, @RequestParam String category) {
         logger.info("Updating ingredient with id: {}", id);
         try {
             ingredient.setId(id);
+            ingredient.setCategory(IngredientCategory.valueOf(category));
             ingredientService.updateIngredient(ingredient);
             logger.info("Successfully updated ingredient: {}", ingredient.getName());
         } catch (Exception e) {

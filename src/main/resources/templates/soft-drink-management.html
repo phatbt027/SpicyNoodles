@@ -460,6 +460,10 @@
             const drink = drinks.find(d => d.id === drinkId);
             
             if (drink) {
+                // Log the drink object and its ingredients for debugging
+                console.log('Editing SoftDrink:', drink);
+                console.log('Drink ingredients:', drink.ingredients);
+                
                 document.getElementById('editName').value = drink.name || '';
                 document.getElementById('editPrice').value = drink.price || '';
                 document.getElementById('editSize').value = drink.size || '';
@@ -472,8 +476,71 @@
                 const container = document.getElementById('editIngredientsContainer');
                 container.innerHTML = '';
                 
-                // Add one empty ingredient row
-                addEditIngredient();
+                // Add ingredients if they exist
+                if (drink.ingredients && drink.ingredients.length > 0) {
+                    drink.ingredients.forEach(drinkIngredient => {
+                        // Log each ingredient for debugging
+                        console.log('Processing drink ingredient:', drinkIngredient);
+                        
+                        const row = document.createElement('div');
+                        row.className = 'ingredient-row row g-2 mb-2';
+                        
+                        const selectWrapper = document.createElement('div');
+                        selectWrapper.className = 'col-6';
+                        const select = document.createElement('select');
+                        select.className = 'form-select';
+                        select.name = 'ingredientIds';
+                        select.required = true;
+                        
+                        const defaultOption = document.createElement('option');
+                        defaultOption.value = '';
+                        defaultOption.textContent = 'Select Ingredient';
+                        select.appendChild(defaultOption);
+                        
+                        ingredients.forEach(ing => {
+                            const option = document.createElement('option');
+                            option.value = ing.id;
+                            option.textContent = ing.name;
+                            // Check if this ingredient matches the current one using ingredient.id
+                            if (drinkIngredient && ing.id === drinkIngredient.ingredient.id) {
+                                option.selected = true;
+                            }
+                            select.appendChild(option);
+                        });
+                        
+                        selectWrapper.appendChild(select);
+                        
+                        const inputWrapper = document.createElement('div');
+                        inputWrapper.className = 'col-4';
+                        const input = document.createElement('input');
+                        input.type = 'number';
+                        input.className = 'form-control';
+                        input.name = 'quantities';
+                        input.step = '0.01';
+                        input.min = '0';
+                        input.required = true;
+                        input.value = drinkIngredient.quantity || '';
+                        input.placeholder = 'Quantity';
+                        inputWrapper.appendChild(input);
+                        
+                        const buttonWrapper = document.createElement('div');
+                        buttonWrapper.className = 'col-2';
+                        const button = document.createElement('button');
+                        button.type = 'button';
+                        button.className = 'btn btn-danger';
+                        button.onclick = function() { removeIngredient(this); };
+                        button.innerHTML = '<i class="fas fa-trash"></i>';
+                        buttonWrapper.appendChild(button);
+                        
+                        row.appendChild(selectWrapper);
+                        row.appendChild(inputWrapper);
+                        row.appendChild(buttonWrapper);
+                        container.appendChild(row);
+                    });
+                } else {
+                    // Add one empty ingredient row if no ingredients exist
+                    addEditIngredient();
+                }
                 
                 document.getElementById('editDrinkForm').action = `/dashboard/soft-drinks/${drinkId}/update`;
                 const modal = new bootstrap.Modal(document.getElementById('editDrinkModal'));
