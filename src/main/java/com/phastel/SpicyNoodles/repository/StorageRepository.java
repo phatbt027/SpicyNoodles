@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface StorageRepository extends JpaRepository<Storage, StorageId> {
     List<Storage> findByBranchId(Long branchId);
-    List<Storage> findByMaterialId(Long materialId);
+    List<Storage> findByIngredientId(Long ingredientId);
     List<Storage> findByExpirationDateBefore(LocalDateTime date);
-    List<Storage> findByBranchIdAndMaterialId(Long branchId, Long materialId);
+    List<Storage> findByBranchIdAndIngredientId(Long branchId, Long ingredientId);
 } 

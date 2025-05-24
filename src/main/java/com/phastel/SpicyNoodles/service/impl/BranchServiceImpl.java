@@ -30,7 +30,12 @@ public class BranchServiceImpl implements BranchService {
         if (!branchRepository.existsById(branch.getId())) {
             throw new IllegalArgumentException("Branch not found with id: " + branch.getId());
         }
-        return branchRepository.save(branch);
+        Branch existingBranch = branchRepository.findById(branch.getId()).get();
+        existingBranch.setAddress(branch.getAddress());
+        existingBranch.setOwner(branch.getOwner());
+        existingBranch.setPhoneNumber(branch.getPhoneNumber());
+        existingBranch.setEnabled(branch.isEnabled());
+        return branchRepository.save(existingBranch);
     }
 
     @Override

@@ -10,17 +10,17 @@ public class InvoiceDetails {
     @EmbeddedId
     private InvoiceDetailsId id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("softDrinkId")
     @JoinColumn(name = "soft_drink_id")
     private SoftDrink softDrink;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("dishId")
     @JoinColumn(name = "dish_id")
     private Dish dish;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "invoice_id", nullable = false)
     private Invoice invoice;
 

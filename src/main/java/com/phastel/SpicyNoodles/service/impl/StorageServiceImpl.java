@@ -29,7 +29,7 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public Storage updateStorage(Storage storage) {
-        StorageId id = new StorageId(storage.getMaterial().getId(), storage.getBranch().getId());
+        StorageId id = new StorageId(storage.getIngredient().getId(), storage.getBranch().getId());
         if (!storageRepository.existsById(id)) {
             throw new IllegalArgumentException("Storage not found");
         }
@@ -37,8 +37,8 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void deleteStorage(Long materialId, Long branchId) {
-        StorageId id = new StorageId(materialId, branchId);
+    public void deleteStorage(Long ingredientId, Long branchId) {
+        StorageId id = new StorageId(ingredientId, branchId);
         if (!storageRepository.existsById(id)) {
             throw new IllegalArgumentException("Storage not found");
         }
@@ -46,8 +46,8 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public Storage getStorageById(Long materialId, Long branchId) {
-        StorageId id = new StorageId(materialId, branchId);
+    public Storage getStorageById(Long ingredientId, Long branchId) {
+        StorageId id = new StorageId(ingredientId, branchId);
         return storageRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Storage not found"));
     }
@@ -63,8 +63,8 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public List<Storage> getStoragesByMaterial(Long materialId) {
-        return storageRepository.findByMaterialId(materialId);
+    public List<Storage> getStoragesByIngredient(Long ingredientId) {
+        return storageRepository.findByIngredientId(ingredientId);
     }
 
     @Override
@@ -73,8 +73,8 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public Storage updateStorageQuantity(Long materialId, Long branchId, Integer quantity) {
-        Storage storage = getStorageById(materialId, branchId);
+    public Storage updateStorageQuantity(Long ingredientId, Long branchId, Integer quantity) {
+        Storage storage = getStorageById(ingredientId, branchId);
         storage.setQuantity(quantity);
         return storageRepository.save(storage);
     }

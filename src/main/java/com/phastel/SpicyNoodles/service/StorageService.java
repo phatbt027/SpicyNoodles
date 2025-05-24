@@ -11,7 +11,7 @@ public interface StorageService {
     Storage getStorageById(Long materialId, Long branchId);
     List<Storage> getAllStorages();
     List<Storage> getStoragesByBranch(Long branchId);
-    List<Storage> getStoragesByMaterial(Long materialId);
+    List<Storage> getStoragesByIngredient(Long materialId);
     List<Storage> getExpiredStorages(LocalDateTime date);
     Storage updateStorageQuantity(Long materialId, Long branchId, Integer quantity);
 } 

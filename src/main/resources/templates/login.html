@@ -66,11 +66,6 @@
                     <input type="password" class="form-control" id="password" name="password" required>
                 </div>
                 
-                <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="remember-me" name="remember-me">
-                    <label class="form-check-label" for="remember-me">Remember me</label>
-                </div>
-                
                 <div th:if="${param.error}" class="error-message">
                     Invalid username or password
                 </div>

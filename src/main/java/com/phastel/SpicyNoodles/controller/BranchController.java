@@ -2,16 +2,21 @@ package com.phastel.SpicyNoodles.controller;
 
 import com.phastel.SpicyNoodles.entity.Branch;
 import com.phastel.SpicyNoodles.service.BranchService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/branches")
+@Controller
+@RequestMapping("/dashboard/branches")
 public class BranchController {
-
+    
+    private static final Logger logger = LoggerFactory.getLogger(BranchController.class);
+    
     private final BranchService branchService;
 
     @Autowired
@@ -19,50 +24,75 @@ public class BranchController {
         this.branchService = branchService;
     }
 
-    @PostMapping
-    public ResponseEntity<Branch> createBranch(@RequestBody Branch branch) {
-        return ResponseEntity.ok(branchService.createBranch(branch));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Branch> updateBranch(@PathVariable Long id, @RequestBody Branch branch) {
-        branch.setId(id);
-        return ResponseEntity.ok(branchService.updateBranch(branch));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBranch(@PathVariable Long id) {
-        branchService.deleteBranch(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Branch> getBranchById(@PathVariable Long id) {
-        return ResponseEntity.ok(branchService.getBranchById(id));
-    }
-
     @GetMapping
-    public ResponseEntity<List<Branch>> getAllBranches() {
-        return ResponseEntity.ok(branchService.getAllBranches());
-    }
-
-    @GetMapping("/owner/{owner}")
-    public ResponseEntity<List<Branch>> getBranchesByOwner(@PathVariable String owner) {
-        return ResponseEntity.ok(branchService.getBranchesByOwner(owner));
-    }
-
-    @GetMapping("/enabled")
-    public ResponseEntity<List<Branch>> getEnabledBranches() {
-        return ResponseEntity.ok(branchService.getEnabledBranches());
+    public String branchManagement(Model model) {
+        logger.info("Accessing branch management page");
+        model.addAttribute("branches", branchService.getAllBranches());
+        return "branch-management";
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Branch>> searchBranchesByAddress(@RequestParam String address) {
-        return ResponseEntity.ok(branchService.searchBranchesByAddress(address));
+    public String searchBranches(
+            @RequestParam(required = false) String address,
+            @RequestParam(required = false) String owner,
+            @RequestParam(required = false) String status,
+            Model model) {
+        
+        logger.info("Searching branches with filters - address: {}, owner: {}, status: {}", 
+            address, owner, status);
+
+        List<Branch> branches;
+        if (address != null && !address.isEmpty()) {
+            branches = branchService.searchBranchesByAddress(address);
+        } else if (owner != null && !owner.isEmpty()) {
+            branches = branchService.getBranchesByOwner(owner);
+        } else if (status != null && !status.isEmpty()) {
+            boolean isEnabled = Boolean.parseBoolean(status);
+            branches = isEnabled ? branchService.getEnabledBranches() : branchService.getAllBranches();
+        } else {
+            branches = branchService.getAllBranches();
+        }
+
+        model.addAttribute("branches", branches);
+        return "branch-management";
     }
 
-    @PatchMapping("/{id}/toggle-status")
-    public ResponseEntity<Branch> toggleBranchStatus(@PathVariable Long id) {
-        return ResponseEntity.ok(branchService.toggleBranchStatus(id));
+    @PostMapping
+    public String createBranch(@ModelAttribute Branch branch, @RequestParam(required = false) Boolean isEnabled) {
+        logger.info("Creating new branch: {}", branch.getAddress());
+        try {
+            branch.setEnabled(isEnabled != null ? isEnabled : true);
+            branchService.createBranch(branch);
+            logger.info("Successfully created branch: {}", branch.getAddress());
+        } catch (Exception e) {
+            logger.error("Error creating branch: {}", branch.getAddress(), e);
+        }
+        return "redirect:/dashboard/branches";
+    }
+
+    @PostMapping("/{id}/update")
+    public String updateBranch(@PathVariable Long id, @ModelAttribute Branch branch, @RequestParam(required = false) Boolean isEnabled) {
+        logger.info("Updating branch with ID: {}", id);
+        try {
+            branch.setId(id);
+            branch.setEnabled(isEnabled != null ? isEnabled : false);
+            branchService.updateBranch(branch);
+            logger.info("Successfully updated branch with ID: {}", id);
+        } catch (Exception e) {
+            logger.error("Error updating branch with ID: {}", id, e);
+        }
+        return "redirect:/dashboard/branches";
+    }
+
+    @PostMapping("/{id}/delete")
+    public String deleteBranch(@PathVariable Long id) {
+        logger.info("Deleting branch with ID: {}", id);
+        try {
+            branchService.deleteBranch(id);
+            logger.info("Successfully deleted branch with ID: {}", id);
+        } catch (Exception e) {
+            logger.error("Error deleting branch with ID: {}", id, e);
+        }
+        return "redirect:/dashboard/branches";
     }
 } 

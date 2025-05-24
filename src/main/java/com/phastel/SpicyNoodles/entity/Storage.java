@@ -9,14 +9,14 @@ import java.time.LocalDateTime;
 @Table(name = "storages")
 public class Storage {
     @EmbeddedId
-    private StorageId id;
+    private StorageId id = new StorageId();
 
-    @ManyToOne
-    @MapsId("materialId")
-    @JoinColumn(name = "material_id")
-    private Material material;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @MapsId("ingredientId")
+    @JoinColumn(name = "ingredient_id")
+    private Ingredient ingredient;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("branchId")
     @JoinColumn(name = "branch_id")
     private Branch branch;
@@ -25,8 +25,22 @@ public class Storage {
     private Integer quantity;
 
     @Column(nullable = false)
-    private LocalDateTime dateOfEntry;
+    private LocalDateTime dateOfEntry = LocalDateTime.now();
 
     @Column
     private LocalDateTime expirationDate;
+
+    @PrePersist
+    @PreUpdate
+    public void updateId() {
+        if (this.id == null) {
+            this.id = new StorageId();
+        }
+        if (this.ingredient != null) {
+            this.id.setIngredientId(this.ingredient.getId());
+        }
+        if (this.branch != null) {
+            this.id.setBranchId(this.branch.getId());
+        }
+    }
 } 

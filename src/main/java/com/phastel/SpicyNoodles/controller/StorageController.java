@@ -1,89 +1,136 @@
 package com.phastel.SpicyNoodles.controller;
 
 import com.phastel.SpicyNoodles.entity.Storage;
+import com.phastel.SpicyNoodles.entity.Ingredient;
+import com.phastel.SpicyNoodles.entity.Branch;
+import com.phastel.SpicyNoodles.entity.IngredientCategory;
 import com.phastel.SpicyNoodles.service.StorageService;
+import com.phastel.SpicyNoodles.service.IngredientService;
+import com.phastel.SpicyNoodles.service.BranchService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/storages")
+@Controller
+@RequestMapping("/dashboard/storages")
 public class StorageController {
-
+    
+    private static final Logger logger = LoggerFactory.getLogger(StorageController.class);
+    
     private final StorageService storageService;
+    private final IngredientService ingredientService;
+    private final BranchService branchService;
 
     @Autowired
-    public StorageController(StorageService storageService) {
+    public StorageController(StorageService storageService, IngredientService ingredientService, BranchService branchService) {
         this.storageService = storageService;
-    }
-
-    @PostMapping
-    public ResponseEntity<Storage> createStorage(@RequestBody Storage storage) {
-        return ResponseEntity.ok(storageService.createStorage(storage));
-    }
-
-    @PutMapping("/{materialId}/{branchId}")
-    public ResponseEntity<Storage> updateStorage(
-            @PathVariable Long materialId,
-            @PathVariable Long branchId,
-            @RequestBody Storage storage) {
-        return ResponseEntity.ok(storageService.updateStorage(storage));
-    }
-
-    @DeleteMapping("/{materialId}/{branchId}")
-    public ResponseEntity<Void> deleteStorage(
-            @PathVariable Long materialId,
-            @PathVariable Long branchId) {
-        storageService.deleteStorage(materialId, branchId);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/{materialId}/{branchId}")
-    public ResponseEntity<Storage> getStorageById(
-            @PathVariable Long materialId,
-            @PathVariable Long branchId) {
-        try {
-            return ResponseEntity.ok(storageService.getStorageById(materialId, branchId));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
+        this.ingredientService = ingredientService;
+        this.branchService = branchService;
     }
 
     @GetMapping
-    public ResponseEntity<List<Storage>> getAllStorages() {
-        return ResponseEntity.ok(storageService.getAllStorages());
+    public String storageManagement(Model model) {
+        logger.info("Accessing storage management page");
+        model.addAttribute("storages", storageService.getAllStorages());
+        model.addAttribute("ingredients", ingredientService.getAllIngredients());
+        model.addAttribute("branches", branchService.getAllBranches());
+        return "storage-management";
     }
 
-    @GetMapping("/branch/{branchId}")
-    public ResponseEntity<List<Storage>> getStoragesByBranch(@PathVariable Long branchId) {
-        return ResponseEntity.ok(storageService.getStoragesByBranch(branchId));
+    @GetMapping("/search")
+    public String searchIngredients(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String category,
+            Model model) {
+        
+        logger.info("Searching ingredients with filters - name: {}, category: {}", 
+            name, category);
+
+        List<Ingredient> ingredients = ingredientService.getAllIngredients();
+
+        // Filter by name
+        if (name != null && !name.isEmpty()) {
+            ingredients = ingredients.stream()
+                .filter(ingredient -> ingredient.getName().toLowerCase().contains(name.toLowerCase()))
+                .toList();
+        }
+
+        // Filter by category
+        if (category != null) {
+            ingredients = ingredients.stream()
+                .filter(ingredient -> ingredient.getCategory().equals(IngredientCategory.valueOf(category)))
+                .toList();
+        }
+
+        model.addAttribute("ingredients", ingredients);
+        model.addAttribute("storages", storageService.getAllStorages());
+        model.addAttribute("branches", branchService.getAllBranches());
+        return "storage-management";
     }
 
-    @GetMapping("/material/{materialId}")
-    public ResponseEntity<List<Storage>> getStoragesByMaterial(@PathVariable Long materialId) {
-        return ResponseEntity.ok(storageService.getStoragesByMaterial(materialId));
+    @PostMapping
+    public String createStorage(@RequestParam("ingredientId") Long ingredientId,
+                              @RequestParam("branchId") Long branchId,
+                              @RequestParam("quantity") Integer quantity,
+                              @RequestParam(value = "expirationDate", required = false) String expirationDate) {
+        logger.info("Creating new storage record");
+        try {
+            Ingredient ingredient = ingredientService.getIngredientById(ingredientId);
+            Branch branch = branchService.getBranchById(branchId);
+            
+            Storage storage = new Storage();
+            storage.setIngredient(ingredient);
+            storage.setBranch(branch);
+            storage.setQuantity(quantity);
+            if (expirationDate != null && !expirationDate.isEmpty()) {
+                storage.setExpirationDate(LocalDateTime.parse(expirationDate));
+            }
+            storage.setDateOfEntry(LocalDateTime.now());
+            
+            storageService.createStorage(storage);
+            logger.info("Successfully created storage record");
+        } catch (Exception e) {
+            logger.error("Error creating storage record", e);
+        }
+        return "redirect:/dashboard/storages";
     }
 
-    @GetMapping("/expired")
-    public ResponseEntity<List<Storage>> getExpiredStorages(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date) {
-        return ResponseEntity.ok(storageService.getExpiredStorages(date));
+    @PostMapping("/{ingredientId}/{branchId}/delete")
+    public String deleteStorage(@PathVariable Long ingredientId, @PathVariable Long branchId) {
+        logger.info("Attempting to delete storage record with ingredientId: {} and branchId: {}", ingredientId, branchId);
+        try {
+            storageService.deleteStorage(ingredientId, branchId);
+            logger.info("Successfully deleted storage record");
+        } catch (Exception e) {
+            logger.error("Error deleting storage record", e);
+        }
+        return "redirect:/dashboard/storages";
     }
 
-    @PatchMapping("/{materialId}/{branchId}/quantity")
-    public ResponseEntity<Storage> updateStorageQuantity(
-            @PathVariable Long materialId,
-            @PathVariable Long branchId,
-            @RequestParam Integer quantity) {
-        return ResponseEntity.ok(storageService.updateStorageQuantity(materialId, branchId, quantity));
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Void> handleIllegalArgumentException(IllegalArgumentException e) {
-        return ResponseEntity.notFound().build();
+    @PostMapping("/{ingredientId}/{branchId}/update")
+    public String updateStorage(@PathVariable Long ingredientId, 
+                              @PathVariable Long branchId, 
+                              @ModelAttribute Storage storage) {
+        logger.info("Attempting to update storage record with ingredientId: {} and branchId: {}", ingredientId, branchId);
+        try {
+            Ingredient ingredient = ingredientService.getIngredientById(ingredientId);
+            Branch branch = branchService.getBranchById(branchId);
+            
+            storage.setIngredient(ingredient);
+            storage.setBranch(branch);
+            storage.setDateOfEntry(LocalDateTime.now());
+            
+            storageService.updateStorage(storage);
+            logger.info("Successfully updated storage record");
+        } catch (Exception e) {
+            logger.error("Error updating storage record", e);
+        }
+        return "redirect:/dashboard/storages";
     }
 } 

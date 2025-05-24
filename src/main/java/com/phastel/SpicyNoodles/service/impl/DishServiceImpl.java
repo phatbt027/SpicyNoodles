@@ -2,12 +2,12 @@ package com.phastel.SpicyNoodles.service.impl;
 
 import com.phastel.SpicyNoodles.entity.*;
 import com.phastel.SpicyNoodles.repository.DishRepository;
-import com.phastel.SpicyNoodles.repository.MaterialRepository;
+import com.phastel.SpicyNoodles.repository.IngredientRepository;
 import com.phastel.SpicyNoodles.service.DishService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -15,12 +15,12 @@ import java.util.List;
 public class DishServiceImpl implements DishService {
 
     private final DishRepository dishRepository;
-    private final MaterialRepository materialRepository;
+    private final IngredientRepository ingredientRepository;
 
     @Autowired
-    public DishServiceImpl(DishRepository dishRepository, MaterialRepository materialRepository) {
+    public DishServiceImpl(DishRepository dishRepository, IngredientRepository ingredientRepository) {
         this.dishRepository = dishRepository;
-        this.materialRepository = materialRepository;
+        this.ingredientRepository = ingredientRepository;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
-    public List<Dish> getDishesByPriceRange(Double minPrice, Double maxPrice) {
+    public List<Dish> getDishesByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
         if (minPrice != null && maxPrice != null) {
             return dishRepository.findByPriceGreaterThanEqualAndPriceLessThanEqual(minPrice, maxPrice);
         } else if (minPrice != null) {
@@ -73,24 +73,24 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
-    public Dish addMaterialToDish(Long dishId, Long materialId, Integer quantity) {
+    public Dish addIngredientToDish(Long dishId, Long ingredientId, Double quantity) {   
         Dish dish = getDishById(dishId);
-        Material material = materialRepository.findById(materialId)
-                .orElseThrow(() -> new IllegalArgumentException("Material not found with id: " + materialId));
+        Ingredient ingredient = ingredientRepository.findById(ingredientId)
+                .orElseThrow(() -> new IllegalArgumentException("Ingredient not found with id: " + ingredientId));
 
-        DishMaterial dishMaterial = new DishMaterial();
-        dishMaterial.setDish(dish);
-        dishMaterial.setMaterial(material);
-        dishMaterial.setQuantity(quantity);
+        DishIngredient dishIngredient = new DishIngredient();
+        dishIngredient.setDish(dish);
+        dishIngredient.setIngredient(ingredient);
+        dishIngredient.setQuantity(quantity);
 
-        dish.getMaterials().add(dishMaterial);
+        dish.getIngredients().add(dishIngredient);
         return dishRepository.save(dish);
     }
 
     @Override
-    public Dish removeMaterialFromDish(Long dishId, Long materialId) {
+    public Dish removeIngredientFromDish(Long dishId, Long ingredientId) {
         Dish dish = getDishById(dishId);
-        dish.getMaterials().removeIf(m -> m.getMaterial().getId().equals(materialId));
+        dish.getIngredients().removeIf(i -> i.getIngredient().getId().equals(ingredientId));
         return dishRepository.save(dish);
     }
 } 

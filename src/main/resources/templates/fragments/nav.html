@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #343a40;
+        }
+        .nav-content {
+            flex: 1;
+            padding-top: 1rem;
+            position: relative;
+            min-height: calc(100vh - 1rem);
+        }
+        .nav-link {
+            color: rgba(255,255,255,.75);
+            padding: 0.75rem 1rem;
+        }
+        .nav-link:hover {
+            color: rgba(255,255,255,1);
+        }
+        .nav-link.active {
+            color: white;
+            background-color: rgba(255,255,255,.1);
+        }
+    </style>
+</head>
+<body>
+    <nav th:fragment="nav(active)" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+        <div class="position-sticky d-flex flex-column h-100">
+            <div class="nav-content">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" th:classappend="${active == 'dashboard'} ? 'active'" th:href="@{/dashboard}">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:classappend="${active == 'order'} ? 'active'" th:href="@{/dashboard/orders}">
+                            <i class="fas fa-shopping-cart"></i> Order
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:classappend="${active == 'storage'} ? 'active'" th:href="@{/dashboard/storages}">
+                            <i class="fas fa-warehouse"></i> Storage
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:classappend="${active == 'ingredient'} ? 'active'" th:href="@{/dashboard/ingredients}">
+                            <i class="fas fa-box"></i> Ingredients
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:classappend="${active == 'dishes'} ? 'active'" th:href="@{/dashboard/dishes}">
+                            <i class="fas fa-utensils"></i> Dishes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:classappend="${active == 'soft-drinks'} ? 'active'" th:href="@{/dashboard/soft-drinks}">
+                            <i class="fas fa-glass-martini-alt"></i> Soft Drinks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:classappend="${active == 'branches'} ? 'active'" th:href="@{/dashboard/branches}">
+                            <i class="fas fa-building"></i> Branches
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:classappend="${active == 'users'} ? 'active'" th:href="@{/dashboard/users}">
+                            <i class="fas fa-user"></i> User
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <form th:action="@{/logout}" method="post" class="d-inline w-100">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit" class="nav-link logout w-100 text-start">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</body>
+</html> 

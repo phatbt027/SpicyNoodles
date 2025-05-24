@@ -1,6 +1,7 @@
 package com.phastel.SpicyNoodles.service;
 
 import com.phastel.SpicyNoodles.entity.Dish;
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface DishService {
@@ -10,7 +11,7 @@ public interface DishService {
     Dish getDishById(Long id);
     List<Dish> getAllDishes();
     List<Dish> searchDishesByName(String name);
-    List<Dish> getDishesByPriceRange(Double minPrice, Double maxPrice);
-    Dish addMaterialToDish(Long dishId, Long materialId, Integer quantity);
-    Dish removeMaterialFromDish(Long dishId, Long materialId);
+    List<Dish> getDishesByPriceRange(BigDecimal minPrice, BigDecimal maxPrice);
+    Dish addIngredientToDish(Long dishId, Long ingredientId, Double quantity);
+    Dish removeIngredientFromDish(Long dishId, Long ingredientId);
 } 

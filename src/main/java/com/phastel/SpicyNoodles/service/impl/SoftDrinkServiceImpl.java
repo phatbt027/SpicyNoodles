@@ -1,31 +1,41 @@
 package com.phastel.SpicyNoodles.service.impl;
 
 import com.phastel.SpicyNoodles.entity.*;
-import com.phastel.SpicyNoodles.repository.MaterialRepository;
+import com.phastel.SpicyNoodles.repository.IngredientRepository;
 import com.phastel.SpicyNoodles.repository.SoftDrinkRepository;
 import com.phastel.SpicyNoodles.service.SoftDrinkService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
+import java.util.HashSet;
 
 @Service
 @Transactional
 public class SoftDrinkServiceImpl implements SoftDrinkService {
 
     private final SoftDrinkRepository softDrinkRepository;
-    private final MaterialRepository materialRepository;
+    private final IngredientRepository ingredientRepository;
 
     @Autowired
-    public SoftDrinkServiceImpl(SoftDrinkRepository softDrinkRepository, MaterialRepository materialRepository) {
+    public SoftDrinkServiceImpl(SoftDrinkRepository softDrinkRepository, IngredientRepository ingredientRepository) {
         this.softDrinkRepository = softDrinkRepository;
-        this.materialRepository = materialRepository;
+        this.ingredientRepository = ingredientRepository;
     }
 
     @Override
     public SoftDrink createSoftDrink(SoftDrink softDrink) {
+        // Initialize ingredients set if null
+        if (softDrink.getIngredients() == null) {
+            softDrink.setIngredients(new HashSet<>());
+        }
+        
+        // Set up bidirectional relationship for ingredients
+        softDrink.getIngredients().forEach(ingredient -> {
+            ingredient.setSoftDrink(softDrink);
+        });
+        
         return softDrinkRepository.save(softDrink);
     }
 
@@ -34,6 +44,17 @@ public class SoftDrinkServiceImpl implements SoftDrinkService {
         if (!softDrinkRepository.existsById(softDrink.getId())) {
             throw new IllegalArgumentException("Soft drink not found with id: " + softDrink.getId());
         }
+        
+        // Initialize ingredients set if null
+        if (softDrink.getIngredients() == null) {
+            softDrink.setIngredients(new HashSet<>());
+        }
+        
+        // Set up bidirectional relationship for ingredients
+        softDrink.getIngredients().forEach(ingredient -> {
+            ingredient.setSoftDrink(softDrink);
+        });
+        
         return softDrinkRepository.save(softDrink);
     }
 
@@ -62,7 +83,7 @@ public class SoftDrinkServiceImpl implements SoftDrinkService {
     }
 
     @Override
-    public List<SoftDrink> getSoftDrinksByPriceRange(Double minPrice, Double maxPrice) {
+    public List<SoftDrink> getSoftDrinksByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
         if (minPrice != null && maxPrice != null) {
             return softDrinkRepository.findByPriceGreaterThanEqualAndPriceLessThanEqual(minPrice, maxPrice);
         } else if (minPrice != null) {
@@ -74,24 +95,24 @@ public class SoftDrinkServiceImpl implements SoftDrinkService {
     }
 
     @Override
-    public SoftDrink addMaterialToSoftDrink(Long softDrinkId, Long materialId, Integer quantity) {
+    public SoftDrink addIngredientToSoftDrink(Long softDrinkId, Long ingredientId, Double quantity) {
         SoftDrink softDrink = getSoftDrinkById(softDrinkId);
-        Material material = materialRepository.findById(materialId)
-                .orElseThrow(() -> new IllegalArgumentException("Material not found with id: " + materialId));
+        Ingredient ingredient = ingredientRepository.findById(ingredientId)
+                .orElseThrow(() -> new IllegalArgumentException("Ingredient not found with id: " + ingredientId));
 
-        SoftDrinkMaterial softDrinkMaterial = new SoftDrinkMaterial();
-        softDrinkMaterial.setSoftDrink(softDrink);
-        softDrinkMaterial.setMaterial(material);
-        softDrinkMaterial.setQuantity(quantity);
+        SoftDrinkIngredient softDrinkIngredient = new SoftDrinkIngredient();
+        softDrinkIngredient.setSoftDrink(softDrink);
+        softDrinkIngredient.setIngredient(ingredient);
+        softDrinkIngredient.setQuantity(quantity);
 
-        softDrink.getMaterials().add(softDrinkMaterial);
+        softDrink.getIngredients().add(softDrinkIngredient);
         return softDrinkRepository.save(softDrink);
     }
 
     @Override
-    public SoftDrink removeMaterialFromSoftDrink(Long softDrinkId, Long materialId) {
+    public SoftDrink removeIngredientFromSoftDrink(Long softDrinkId, Long ingredientId) {
         SoftDrink softDrink = getSoftDrinkById(softDrinkId);
-        softDrink.getMaterials().removeIf(m -> m.getMaterial().getId().equals(materialId));
+        softDrink.getIngredients().removeIf(i -> i.getIngredient().getId().equals(ingredientId));
         return softDrinkRepository.save(softDrink);
     }
 } 

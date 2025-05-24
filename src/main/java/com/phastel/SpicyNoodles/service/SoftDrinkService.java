@@ -1,6 +1,7 @@
 package com.phastel.SpicyNoodles.service;
 
 import com.phastel.SpicyNoodles.entity.SoftDrink;
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface SoftDrinkService {
@@ -10,7 +11,7 @@ public interface SoftDrinkService {
     SoftDrink getSoftDrinkById(Long id);
     List<SoftDrink> getAllSoftDrinks();
     List<SoftDrink> searchSoftDrinksByName(String name);
-    List<SoftDrink> getSoftDrinksByPriceRange(Double minPrice, Double maxPrice);
-    SoftDrink addMaterialToSoftDrink(Long softDrinkId, Long materialId, Integer quantity);
-    SoftDrink removeMaterialFromSoftDrink(Long softDrinkId, Long materialId);
+    List<SoftDrink> getSoftDrinksByPriceRange(BigDecimal minPrice, BigDecimal maxPrice);
+    SoftDrink addIngredientToSoftDrink(Long softDrinkId, Long ingredientId, Double quantity);
+    SoftDrink removeIngredientFromSoftDrink(Long softDrinkId, Long ingredientId);
 } 
