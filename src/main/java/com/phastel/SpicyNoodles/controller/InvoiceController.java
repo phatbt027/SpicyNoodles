@@ -1,7 +1,7 @@
 package com.phastel.SpicyNoodles.controller;
 
 import com.phastel.SpicyNoodles.entity.Invoice;
-import com.phastel.SpicyNoodles.entity.InvoiceDetails;
+import com.phastel.SpicyNoodles.entity.OrderItem;
 import com.phastel.SpicyNoodles.service.InvoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -52,25 +52,9 @@ public class InvoiceController {
         return ResponseEntity.ok(invoiceService.getInvoicesByUserId(userId));
     }
 
-    // InvoiceDetails endpoints
-    @PostMapping("/{invoiceId}/details")
-    public ResponseEntity<InvoiceDetails> addInvoiceDetail(
-            @PathVariable Long invoiceId,
-            @RequestBody InvoiceDetails invoiceDetail) {
-        return ResponseEntity.ok(invoiceService.addInvoiceDetail(invoiceId, invoiceDetail));
-    }
-
-    @DeleteMapping("/{invoiceId}/details")
-    public ResponseEntity<Void> removeInvoiceDetail(
-            @PathVariable Long invoiceId,
-            @RequestParam Long softDrinkId,
-            @RequestParam Long dishId) {
-        invoiceService.removeInvoiceDetail(invoiceId, softDrinkId, dishId);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/{invoiceId}/details")
-    public ResponseEntity<List<InvoiceDetails>> getInvoiceDetails(@PathVariable Long invoiceId) {
-        return ResponseEntity.ok(invoiceService.getInvoiceDetails(invoiceId));
+    @GetMapping("/{invoiceId}/items")
+    public ResponseEntity<List<OrderItem>> getOrderItems(@PathVariable Long invoiceId) {
+        Invoice invoice = invoiceService.getInvoiceById(invoiceId);
+        return ResponseEntity.ok(invoice.getItems());
     }
 } 

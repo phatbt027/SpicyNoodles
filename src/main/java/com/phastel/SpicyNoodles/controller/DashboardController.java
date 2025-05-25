@@ -39,20 +39,39 @@ public class DashboardController {
     public String dashboard(Model model) {
         logger.info("Accessing dashboard page");
         try {
-            model.addAttribute("totalUsers", userService.getAllUsers().size());
+            // Calculate current month's revenue
+            double currentMonthRevenue = getCurrentMonthRevenue();
+            
+            model.addAttribute("currentMonthRevenue", currentMonthRevenue);
             model.addAttribute("totalOrder", invoiceService.getAllInvoices().size());
             model.addAttribute("totalStorageItems", storageService.getAllStorages().size());
             model.addAttribute("monthlyOrders", getMonthlyOrdersData());
+            model.addAttribute("monthlyRevenue", getMonthlyRevenueData());
             logger.info("Successfully loaded dashboard stats");
         } catch (Exception e) {
             logger.error("Error loading dashboard stats", e);
             // Set default values in case of error
-            model.addAttribute("totalUsers", 0);
+            model.addAttribute("currentMonthRevenue", 0.0);
             model.addAttribute("totalOrder", 0);
             model.addAttribute("totalStorageItems", 0);
             model.addAttribute("monthlyOrders", List.of(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+            model.addAttribute("monthlyRevenue", List.of(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0));
         }
         return "dashboard";
+    }
+
+    private double getCurrentMonthRevenue() {
+        LocalDateTime now = LocalDateTime.now();
+        YearMonth currentYearMonth = YearMonth.from(now);
+        
+        return invoiceService.getAllInvoices().stream()
+            .filter(invoice -> {
+                LocalDateTime orderTime = invoice.getOrderTime();
+                return orderTime.getYear() == currentYearMonth.getYear() 
+                    && orderTime.getMonthValue() == currentYearMonth.getMonthValue();
+            })
+            .mapToDouble(Invoice::getTotalPrice)
+            .sum();
     }
 
     private List<Integer> getMonthlyOrdersData() {
@@ -63,11 +82,11 @@ public class DashboardController {
         // Create a map of month to order count for the current year
         Map<Integer, Long> monthlyCounts = allInvoices.stream()
             .filter(invoice -> {
-                LocalDateTime createdAt = invoice.getCreatedAt();
-                return createdAt.getYear() == currentYearMonth.getYear();
+                LocalDateTime orderTime = invoice.getOrderTime();
+                return orderTime.getYear() == currentYearMonth.getYear();
             })
             .collect(Collectors.groupingBy(
-                invoice -> invoice.getCreatedAt().getMonthValue(),
+                invoice -> invoice.getOrderTime().getMonthValue(),
                 Collectors.counting()
             ));
 
@@ -78,5 +97,30 @@ public class DashboardController {
         }
 
         return monthlyOrders;
+    }
+
+    private List<Double> getMonthlyRevenueData() {
+        List<Invoice> allInvoices = invoiceService.getAllInvoices();
+        LocalDateTime now = LocalDateTime.now();
+        YearMonth currentYearMonth = YearMonth.from(now);
+
+        // Create a map of month to total revenue for the current year
+        Map<Integer, Double> monthlyRevenue = allInvoices.stream()
+            .filter(invoice -> {
+                LocalDateTime orderTime = invoice.getOrderTime();
+                return orderTime.getYear() == currentYearMonth.getYear();
+            })
+            .collect(Collectors.groupingBy(
+                invoice -> invoice.getOrderTime().getMonthValue(),
+                Collectors.summingDouble(Invoice::getTotalPrice)
+            ));
+
+        // Create a list of 12 doubles representing revenue per month
+        List<Double> monthlyRevenueList = new java.util.ArrayList<>();
+        for (int month = 1; month <= 12; month++) {
+            monthlyRevenueList.add(monthlyRevenue.getOrDefault(month, 0.0));
+        }
+
+        return monthlyRevenueList;
     }
 } 

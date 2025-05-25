@@ -1,8 +1,7 @@
 package com.phastel.SpicyNoodles.service.impl;
 
-import com.phastel.SpicyNoodles.entity.*;
+import com.phastel.SpicyNoodles.entity.Invoice;
 import com.phastel.SpicyNoodles.repository.InvoiceRepository;
-import com.phastel.SpicyNoodles.repository.InvoiceDetailsRepository;
 import com.phastel.SpicyNoodles.service.InvoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,12 +14,10 @@ import java.util.List;
 public class InvoiceServiceImpl implements InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
-    private final InvoiceDetailsRepository invoiceDetailsRepository;
 
     @Autowired
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, InvoiceDetailsRepository invoiceDetailsRepository) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository) {
         this.invoiceRepository = invoiceRepository;
-        this.invoiceDetailsRepository = invoiceDetailsRepository;
     }
 
     @Override
@@ -58,25 +55,5 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public List<Invoice> getInvoicesByUserId(Long userId) {
         return invoiceRepository.findByUserId(userId);
-    }
-
-    @Override
-    public InvoiceDetails addInvoiceDetail(Long invoiceId, InvoiceDetails invoiceDetail) {
-        Invoice invoice = getInvoiceById(invoiceId);
-        invoiceDetail.setInvoice(invoice);
-        return invoiceDetailsRepository.save(invoiceDetail);
-    }
-
-    @Override
-    public void removeInvoiceDetail(Long invoiceId, Long softDrinkId, Long dishId) {
-        InvoiceDetailsId id = new InvoiceDetailsId();
-        id.setSoftDrinkId(softDrinkId);
-        id.setDishId(dishId);
-        invoiceDetailsRepository.deleteById(id);
-    }
-
-    @Override
-    public List<InvoiceDetails> getInvoiceDetails(Long invoiceId) {
-        return invoiceDetailsRepository.findByInvoiceId(invoiceId);
     }
 } 

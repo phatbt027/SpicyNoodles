@@ -36,31 +36,6 @@ public class OrderController {
         return "order-management";
     }
 
-    private List<Integer> getMonthlyOrdersData() {
-        List<Invoice> allInvoices = invoiceService.getAllInvoices();
-        LocalDateTime now = LocalDateTime.now();
-        YearMonth currentYearMonth = YearMonth.from(now);
-
-        // Create a map of month to order count for the current year
-        Map<Integer, Long> monthlyCounts = allInvoices.stream()
-            .filter(invoice -> {
-                LocalDateTime createdAt = invoice.getCreatedAt();
-                return createdAt.getYear() == currentYearMonth.getYear();
-            })
-            .collect(Collectors.groupingBy(
-                invoice -> invoice.getCreatedAt().getMonthValue(),
-                Collectors.counting()
-            ));
-
-        // Create a list of 12 integers representing orders per month
-        List<Integer> monthlyOrders = new java.util.ArrayList<>();
-        for (int month = 1; month <= 12; month++) {
-            monthlyOrders.add(monthlyCounts.getOrDefault(month, 0L).intValue());
-        }
-
-        return monthlyOrders;
-    }
-
     @GetMapping("/search")
     public String searchOrders(
             @RequestParam(required = false) String orderId,
@@ -98,7 +73,7 @@ public class OrderController {
             LocalDateTime endOfDay = searchDate.atTime(LocalTime.MAX);
             
             orders = orders.stream()
-                .filter(order -> !order.getCreatedAt().isBefore(startOfDay) && !order.getCreatedAt().isAfter(endOfDay))
+                .filter(order -> !order.getOrderTime().isBefore(startOfDay) && !order.getOrderTime().isAfter(endOfDay))
                 .toList();
         }
 
@@ -119,7 +94,7 @@ public class OrderController {
         try {
             Invoice order = invoiceService.getInvoiceById(id);
             model.addAttribute("order", order);
-            model.addAttribute("orderDetails", invoiceService.getInvoiceDetails(id));
+            model.addAttribute("orderItems", order.getItems());
             logger.info("Successfully loaded order details for ID: {}", id);
         } catch (Exception e) {
             logger.error("Error loading order details for ID: {}", id, e);

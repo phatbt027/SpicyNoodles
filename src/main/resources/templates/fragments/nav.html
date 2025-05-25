@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/security/tags">
 <head>
     <meta charset="UTF-8">
     <style>
@@ -32,46 +32,56 @@
     <nav th:fragment="nav(active)" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
         <div class="nav-content">
             <ul class="nav flex-column">
-                <li class="nav-item">
+                <!-- Admin and Manager Navigation -->
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
                     <a class="nav-link" th:classappend="${active == 'dashboard'} ? 'active'" th:href="@{/dashboard}">
                         <i class="fas fa-home"></i> Dashboard
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
                     <a class="nav-link" th:classappend="${active == 'order'} ? 'active'" th:href="@{/dashboard/orders}">
                         <i class="fas fa-shopping-cart"></i> Order
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
                     <a class="nav-link" th:classappend="${active == 'storage'} ? 'active'" th:href="@{/dashboard/storages}">
                         <i class="fas fa-warehouse"></i> Storage
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
                     <a class="nav-link" th:classappend="${active == 'ingredient'} ? 'active'" th:href="@{/dashboard/ingredients}">
                         <i class="fas fa-box"></i> Ingredients
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
                     <a class="nav-link" th:classappend="${active == 'dishes'} ? 'active'" th:href="@{/dashboard/dishes}">
                         <i class="fas fa-utensils"></i> Dishes
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
                     <a class="nav-link" th:classappend="${active == 'soft-drinks'} ? 'active'" th:href="@{/dashboard/soft-drinks}">
                         <i class="fas fa-glass-martini-alt"></i> Soft Drinks
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
                     <a class="nav-link" th:classappend="${active == 'branches'} ? 'active'" th:href="@{/dashboard/branches}">
                         <i class="fas fa-building"></i> Branches
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
                     <a class="nav-link" th:classappend="${active == 'users'} ? 'active'" th:href="@{/dashboard/users}">
                         <i class="fas fa-user"></i> User
                     </a>
                 </li>
+
+                <!-- Staff Navigation -->
+                <li class="nav-item" sec:authorize="hasRole('STAFF')">
+                    <a class="nav-link" th:classappend="${active == 'staff-orders'} ? 'active'" th:href="@{/staff/orders}">
+                        <i class="fas fa-clipboard-list"></i> Process Orders
+                    </a>
+                </li>
+
+                <!-- Logout for all users -->
                 <li class="nav-item">
                     <form th:action="@{/logout}" method="post" class="d-inline w-100">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />

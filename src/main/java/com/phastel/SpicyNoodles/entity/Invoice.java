@@ -3,7 +3,8 @@ package com.phastel.SpicyNoodles.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
 @Data
 @Entity
@@ -21,14 +22,20 @@ public class Invoice {
     private Double totalPrice;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private OrderStatus status = OrderStatus.PENDING;
 
-    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private Set<InvoiceDetails> invoiceDetails;
+    @Column(nullable = false)
+    private String customerName;
+
+    @Column(nullable = false)
+    private LocalDateTime orderTime;
+
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> items = new ArrayList<>();
+
+    @Column
+    private String notes;
 
     public enum OrderStatus {
         PENDING,

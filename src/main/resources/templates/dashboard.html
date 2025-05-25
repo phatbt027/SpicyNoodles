@@ -53,10 +53,10 @@
                 <!-- Quick Stats Section -->
                 <div class="row mb-4">
                     <div class="col-md-4">
-                        <div class="card bg-primary text-white">
+                        <div class="card bg-warning text-white">
                             <div class="card-body">
-                                <h5 class="card-title">Total Users</h5>
-                                <p class="card-text display-4" th:text="${totalUsers}">0</p>
+                                <h5 class="card-title">This Month's Revenue</h5>
+                                <p class="card-text display-4" th:text="${#numbers.formatCurrency(currentMonthRevenue)}">$0.00</p>
                             </div>
                         </div>
                     </div>
@@ -85,6 +85,16 @@
                     </div>
                     <div class="card-body">
                         <canvas id="ordersChart" height="100"></canvas>
+                    </div>
+                </div>
+
+                <!-- Revenue Chart Section -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Monthly Revenue Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="revenueChart" height="100"></canvas>
                     </div>
                 </div>
             </div>
@@ -129,6 +139,47 @@
                             beginAtZero: true,
                             ticks: {
                                 stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Revenue Chart
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            const monthlyRevenue = /*[[${monthlyRevenue}]]*/ [];
+            
+            new Chart(revenueCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 
+                            'July', 'August', 'September', 'October', 'November', 'December'],
+                    datasets: [{
+                        label: 'Revenue ($)',
+                        data: monthlyRevenue,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgb(54, 162, 235)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Monthly Revenue Distribution'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
                             }
                         }
                     }

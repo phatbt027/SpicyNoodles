@@ -30,6 +30,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/dashboard/**").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers("/staff/**").hasRole("STAFF")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -38,6 +39,14 @@ public class SecurityConfig {
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .defaultSuccessUrl("/dashboard", true)
+                .successHandler((request, response, authentication) -> {
+                    String targetUrl = "/dashboard";
+                    if (authentication.getAuthorities().stream()
+                            .anyMatch(a -> a.getAuthority().equals("ROLE_STAFF"))) {
+                        targetUrl = "/staff/orders";
+                    }
+                    response.sendRedirect(targetUrl);
+                })
                 .failureUrl("/login?error=true")
                 .permitAll()
             )
