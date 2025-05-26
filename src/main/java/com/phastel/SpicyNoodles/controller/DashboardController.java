@@ -24,43 +24,37 @@ public class DashboardController {
     
     private static final Logger logger = LoggerFactory.getLogger(DashboardController.class);
     
-    private final UserService userService;
     private final InvoiceService invoiceService;
-    private final StorageService storageService;
 
     @Autowired
-    public DashboardController(UserService userService, InvoiceService invoiceService, StorageService storageService) {
-        this.userService = userService;
+    public DashboardController(InvoiceService invoiceService) {
         this.invoiceService = invoiceService;
-        this.storageService = storageService;
     }
 
     @GetMapping
     public String dashboard(Model model) {
         logger.info("Accessing dashboard page");
         try {
-            // Calculate current month's revenue
-            double currentMonthRevenue = getCurrentMonthRevenue();
+            // Calculate current month's income
+            double currentMonthIncome = getCurrentMonthIncome();
             
-            model.addAttribute("currentMonthRevenue", currentMonthRevenue);
+            model.addAttribute("currentMonthIncome", currentMonthIncome);
             model.addAttribute("totalOrder", invoiceService.getAllInvoices().size());
-            model.addAttribute("totalStorageItems", storageService.getAllStorages().size());
             model.addAttribute("monthlyOrders", getMonthlyOrdersData());
-            model.addAttribute("monthlyRevenue", getMonthlyRevenueData());
+            model.addAttribute("monthlyIncome", getMonthlyIncomeData());
             logger.info("Successfully loaded dashboard stats");
         } catch (Exception e) {
             logger.error("Error loading dashboard stats", e);
             // Set default values in case of error
-            model.addAttribute("currentMonthRevenue", 0.0);
+            model.addAttribute("currentMonthIncome", 0.0);
             model.addAttribute("totalOrder", 0);
-            model.addAttribute("totalStorageItems", 0);
             model.addAttribute("monthlyOrders", List.of(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
-            model.addAttribute("monthlyRevenue", List.of(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0));
+            model.addAttribute("monthlyIncome", List.of(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0));
         }
         return "dashboard";
     }
 
-    private double getCurrentMonthRevenue() {
+    private double getCurrentMonthIncome() {
         LocalDateTime now = LocalDateTime.now();
         YearMonth currentYearMonth = YearMonth.from(now);
         
@@ -99,13 +93,13 @@ public class DashboardController {
         return monthlyOrders;
     }
 
-    private List<Double> getMonthlyRevenueData() {
+    private List<Double> getMonthlyIncomeData() {
         List<Invoice> allInvoices = invoiceService.getAllInvoices();
         LocalDateTime now = LocalDateTime.now();
         YearMonth currentYearMonth = YearMonth.from(now);
 
-        // Create a map of month to total revenue for the current year
-        Map<Integer, Double> monthlyRevenue = allInvoices.stream()
+        // Create a map of month to total income for the current year
+        Map<Integer, Double> monthlyIncome = allInvoices.stream()
             .filter(invoice -> {
                 LocalDateTime orderTime = invoice.getOrderTime();
                 return orderTime.getYear() == currentYearMonth.getYear();
@@ -115,12 +109,12 @@ public class DashboardController {
                 Collectors.summingDouble(Invoice::getTotalPrice)
             ));
 
-        // Create a list of 12 doubles representing revenue per month
-        List<Double> monthlyRevenueList = new java.util.ArrayList<>();
+        // Create a list of 12 doubles representing income per month
+        List<Double> monthlyIncomeList = new java.util.ArrayList<>();
         for (int month = 1; month <= 12; month++) {
-            monthlyRevenueList.add(monthlyRevenue.getOrDefault(month, 0.0));
+            monthlyIncomeList.add(monthlyIncome.getOrDefault(month, 0.0));
         }
 
-        return monthlyRevenueList;
+        return monthlyIncomeList;
     }
 } 

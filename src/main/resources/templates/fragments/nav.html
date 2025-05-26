@@ -2,31 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/security/tags">
 <head>
     <meta charset="UTF-8">
-    <style>
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background-color: #343a40;
-        }
-        .nav-content {
-            flex: 1;
-            padding-top: 1rem;
-            position: relative;
-            min-height: calc(100vh - 1rem);
-        }
-        .nav-link {
-            color: rgba(255,255,255,.75);
-            padding: 0.75rem 1rem;
-        }
-        .nav-link:hover {
-            color: rgba(255,255,255,1);
-        }
-        .nav-link.active {
-            color: white;
-            background-color: rgba(255,255,255,.1);
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Fragment</title>
+    <link rel="stylesheet" th:href="@{/css/nav.css}">
 </head>
 <body>
     <nav th:fragment="nav(active)" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
@@ -39,33 +17,33 @@
                     </a>
                 </li>
                 <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
-                    <a class="nav-link" th:classappend="${active == 'order'} ? 'active'" th:href="@{/dashboard/orders}">
+                    <a class="nav-link" th:classappend="${active == 'orders'} ? 'active'" th:href="@{/dashboard/orders}">
                         <i class="fas fa-shopping-cart"></i> Order
                     </a>
                 </li>
                 <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
-                    <a class="nav-link" th:classappend="${active == 'storage'} ? 'active'" th:href="@{/dashboard/storages}">
+                    <a class="nav-link" th:classappend="${active == 'storages'} ? 'active'" th:href="@{/dashboard/storages}">
                         <i class="fas fa-warehouse"></i> Storage
                     </a>
                 </li>
                 <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
-                    <a class="nav-link" th:classappend="${active == 'ingredient'} ? 'active'" th:href="@{/dashboard/ingredients}">
-                        <i class="fas fa-box"></i> Ingredients
+                    <a class="nav-link" th:classappend="${active == 'ingredients'} ? 'active'" th:href="@{/dashboard/ingredients}">
+                        <i class="fas fa-box"></i> Ingredient
                     </a>
                 </li>
                 <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
                     <a class="nav-link" th:classappend="${active == 'dishes'} ? 'active'" th:href="@{/dashboard/dishes}">
-                        <i class="fas fa-utensils"></i> Dishes
+                        <i class="fas fa-utensils"></i> Dish
                     </a>
                 </li>
                 <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
                     <a class="nav-link" th:classappend="${active == 'soft-drinks'} ? 'active'" th:href="@{/dashboard/soft-drinks}">
-                        <i class="fas fa-glass-martini-alt"></i> Soft Drinks
+                        <i class="fas fa-glass-martini-alt"></i> Soft Drink
                     </a>
                 </li>
                 <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
                     <a class="nav-link" th:classappend="${active == 'branches'} ? 'active'" th:href="@{/dashboard/branches}">
-                        <i class="fas fa-building"></i> Branches
+                        <i class="fas fa-building"></i> Branch
                     </a>
                 </li>
                 <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
@@ -73,7 +51,7 @@
                         <i class="fas fa-user"></i> User
                     </a>
                 </li>
-
+                
                 <!-- Staff Navigation -->
                 <li class="nav-item" sec:authorize="hasRole('STAFF')">
                     <a class="nav-link" th:classappend="${active == 'staff-orders'} ? 'active'" th:href="@{/staff/orders}">
