@@ -52,24 +52,22 @@ public class StorageController {
         logger.info("Searching ingredients with filters - name: {}, category: {}", 
             name, category);
 
-        List<Ingredient> ingredients = ingredientService.getAllIngredients();
+        List<Storage> storages = storageService.getAllStorages();
 
-        // Filter by name
         if (name != null && !name.isEmpty()) {
-            ingredients = ingredients.stream()
-                .filter(ingredient -> ingredient.getName().toLowerCase().contains(name.toLowerCase()))
+            storages = storages.stream()
+                .filter(storage -> storage.getIngredient().getName().toLowerCase().contains(name.toLowerCase()))
                 .toList();
         }
 
-        // Filter by category
-        if (category != null) {
-            ingredients = ingredients.stream()
-                .filter(ingredient -> ingredient.getCategory().equals(IngredientCategory.valueOf(category)))
+        if (category != null && !category.isEmpty()) {
+            storages = storages.stream()
+                .filter(storage -> storage.getIngredient().getCategory().name().equals(category))
                 .toList();
         }
 
-        model.addAttribute("ingredients", ingredients);
-        model.addAttribute("storages", storageService.getAllStorages());
+        model.addAttribute("storages", storages);
+        model.addAttribute("ingredients", ingredientService.getAllIngredients());
         model.addAttribute("branches", branchService.getAllBranches());
         return "storage-management";
     }
