@@ -240,7 +240,7 @@
                 document.getElementById('editAddress').value = branch.address;
                 document.getElementById('editOwner').value = branch.owner;
                 document.getElementById('editPhoneNumber').value = branch.phoneNumber;
-                document.getElementById('editEnabled').checked = branch.isEnabled;
+                document.getElementById('editEnabled').checked = branch.enabled;
                 document.getElementById('editBranchForm').action = `/dashboard/branches/${branchId}/update`;
                 const modal = new bootstrap.Modal(document.getElementById('editBranchModal'));
                 modal.show();
