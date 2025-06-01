@@ -45,11 +45,18 @@ public class OrderController {
             orderId, customer, date, status);
 
         List<Invoice> orders;
-        if (orderId != null && !orderId.isEmpty()) {
+        if (orderId != null && !orderId.trim().isEmpty()) {
             try {
-                Long id = Long.parseLong(orderId);
-                orders = List.of(invoiceService.getInvoiceById(id));
+                Long id = Long.parseLong(orderId.trim());
+                try {
+                    Invoice invoice = invoiceService.getInvoiceById(id);
+                    orders = List.of(invoice);
+                } catch (IllegalArgumentException e) {
+                    logger.warn("Invoice not found with ID: {}", id);
+                    orders = List.of();
+                }
             } catch (NumberFormatException e) {
+                logger.warn("Invalid order ID format: {}", orderId);
                 orders = List.of();
             }
         } else {
@@ -59,7 +66,7 @@ public class OrderController {
         // Filter by customer
         if (customer != null && !customer.isEmpty()) {
             orders = orders.stream()
-                .filter(order -> order.getUser().getUsername().toLowerCase().contains(customer.toLowerCase()))
+                .filter(order -> order.getCustomerName().toLowerCase().contains(customer.toLowerCase()))
                 .toList();
         }
 
