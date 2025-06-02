@@ -1,6 +1,7 @@
 package com.phastel.SpicyNoodles.service.impl;
 
 import com.phastel.SpicyNoodles.entity.Ingredient;
+import com.phastel.SpicyNoodles.entity.IngredientCategory;
 import com.phastel.SpicyNoodles.repository.IngredientRepository;
 import com.phastel.SpicyNoodles.service.IngredientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,11 @@ public class IngredientServiceImpl implements IngredientService {
 
     @Override
     public List<Ingredient> getIngredientsByCategory(String category) {
-        return ingredientRepository.findByCategory(category);
+        try {
+            IngredientCategory categoryEnum = IngredientCategory.valueOf(category);
+            return ingredientRepository.findByCategory(categoryEnum);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid category: " + category);
+        }
     }
 } 
